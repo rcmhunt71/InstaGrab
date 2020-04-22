@@ -1,0 +1,39 @@
+# --------------------------------------------------
+# Downloaded file parameters
+# --------------------------------------------------
+downloads:
+  records: insta_media_names.txt
+  dl_dir: DLd
+  write_every: 10
+
+# --------------------------------------------------
+# Media File extensions to catalog
+# --------------------------------------------------
+extensions:
+  - mp4
+  - jpg
+
+# --------------------------------------------------
+# Category specifications
+# --------------------------------------------------
+categories:
+  general: Sorted
+  favorites:
+    - nice
+    - favs
+
+# --------------------------------------------------
+# Categorization Flags
+# --------------------------------------------------
+flags:
+  - flag1
+  - flag2
+
+# --------------------------------------------------
+# PURE SILLINESS
+# --------------------------------------------------
+# CLI sub-parser argument names (why do this...? because I can!!!)
+parsers:
+  download: dl
+  inventory: inv
+  query: query

@@ -1,0 +1,15 @@
+class ConfigConstants:
+    CATEGORIES = "categories"
+    DL_DIR = "dl_dir"
+    GENERAL = "general"
+    DOWNLOAD = "download"
+    DOWNLOADS = "downloads"
+    EXTENSIONS = "extensions"
+    FAVORITES = "favorites"
+    FLAGS = "flags"
+    INVENTORY = "inventory"
+    PARSERS = "parsers"
+    QUERY = "query"
+    RECORDS = "records"
+    WRITE_EVERY = "write_every"
+
