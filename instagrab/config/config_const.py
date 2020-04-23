@@ -5,6 +5,7 @@ class ConfigConstants:
     DOWNLOAD = "download"
     DOWNLOADS = "downloads"
     EXTENSIONS = "extensions"
+    GENERAL = "general"
     FAVORITES = "favorites"
     FLAGS = "flags"
     HEIGHT = "height"

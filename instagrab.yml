@@ -30,8 +30,12 @@ flags:
   - flag2
 
 ui:
-  height: 1200
-  width: 1600
+  general:
+    height: 1200
+    width: 1600
+  download:
+    height: 800
+    width: 1200
 
 # --------------------------------------------------
 # PURE SILLINESS
