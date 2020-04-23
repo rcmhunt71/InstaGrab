@@ -35,8 +35,8 @@ def start_ui(cfg: InstaCfg = None):
     width = 0
     height = 0
     if cfg is not None:
-        width = cfg.get_element([ConfigConstants.UI, ConfigConstants.WIDTH], width)
-        height = cfg.get_element([ConfigConstants.UI, ConfigConstants.HEIGHT], height)
+        width = cfg.get_element(path=[ConfigConstants.UI, ConfigConstants.WIDTH], default=width)
+        height = cfg.get_element(path=[ConfigConstants.UI, ConfigConstants.HEIGHT], default=height)
 
     print(f"H: {height}   W: {width}")
 
