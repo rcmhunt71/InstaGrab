@@ -1,4 +1,4 @@
-from instagrab.app.app_routines import download_media, inventory, query
+from instagrab.app_utils.app_routines import download_media, inventory, query
 from instagrab.cli.args import CliArgParse
 from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants
