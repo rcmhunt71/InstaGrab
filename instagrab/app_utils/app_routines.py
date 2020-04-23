@@ -10,6 +10,7 @@ from instagrab.inventory.build_inventory import BuildInventory
 from instagrab.inventory.scanner import ScanFiles
 from instagrab.ui.main_window import start_ui
 
+
 def download_media(record_file: str, flush_records: int = 5, download_dir: str = None) -> typing.NoReturn:
     """
     Read copy buffer, parse URL and download media in URL.

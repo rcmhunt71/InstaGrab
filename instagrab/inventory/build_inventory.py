@@ -116,7 +116,7 @@ class BuildInventory:
         """
         # Get list of categories/directories that indicate favorite media files
         favorites = [] if self.cfg is None else (
-            self.cfg.config.get(ConfigConstants.CATEGORIES, {}).get(ConfigConstants.FAVORITES, []))
+            self.cfg.get_element([ConfigConstants.CATEGORIES, ConfigConstants.FAVORITES], default=[]))
 
         # If filespec has specific directories in the name, mark it as a favorite.
         if len([f for f in favorites if f in file_spec.lower()]) > 0:

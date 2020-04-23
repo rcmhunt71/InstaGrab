@@ -28,9 +28,9 @@ class ScanFiles:
         :return: List of files (full filespec) matching the extension.
         """
         if ext is not None:
-            files = [os.path.abspath(os.path.join(root, fname)) for
-                     root, file_dir, f_list in os.walk(self.directory) for fname in f_list if fname.endswith(ext)]
+            files = [os.path.abspath(os.path.join(root, f_name)) for
+                     root, file_dir, f_list in os.walk(self.directory) for f_name in f_list if f_name.endswith(ext)]
         else:
-            files = [os.path.abspath(os.path.join(root, fname)) for
-                     root, file_dir, f_list in os.walk(self.directory) for fname in f_list]
+            files = [os.path.abspath(os.path.join(root, f_name)) for
+                     root, file_dir, f_list in os.walk(self.directory) for f_name in f_list]
         return files

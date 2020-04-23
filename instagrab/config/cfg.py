@@ -28,9 +28,6 @@ class InstaCfg:
         :return:
         """
         location = self.config
-
-        print(f"PATH: {path}")
-
         for elem in path[0:-1]:
             location = location.get(elem, {})
         return location.get(path[-1], default)

@@ -38,6 +38,8 @@ def start_ui(cfg: InstaCfg = None):
         width = cfg.get_element([ConfigConstants.UI, ConfigConstants.WIDTH], width)
         height = cfg.get_element([ConfigConstants.UI, ConfigConstants.HEIGHT], height)
 
+    print(f"H: {height}   W: {width}")
+
     insta_grab_app = QApplication(sys.argv)
     view = InstaGrabMainUI(width=width, height=height)
     view.show()

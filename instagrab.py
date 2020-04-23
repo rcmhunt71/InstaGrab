@@ -17,8 +17,8 @@ if __name__ == "__main__":
         print(f"DEBUG: CLI NAMESPACE: {pformat(args)}")
 
     cfg = InstaCfg(cfg_file=args.cfg)
-    standard_extensions = cfg.config.get(ConfigConstants.EXTENSIONS, [])
-    flush = cfg.config.get(ConfigConstants.DOWNLOADS, {}).get(ConfigConstants.WRITE_EVERY, None)
+    standard_extensions = cfg.get_element([ConfigConstants.EXTENSIONS], [])
+    flush = cfg.get_element([ConfigConstants.DOWNLOADS, ConfigConstants.WRITE_EVERY], default=None)
 
     # -----------------------------------
     # DOWNLOADS
