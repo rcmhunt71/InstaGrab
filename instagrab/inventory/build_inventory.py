@@ -15,6 +15,25 @@ class MediaTypes(Enum):
     UNKNOWN: str = "unknown"
 
 
+class MediaRecord:
+    """ Class for storing information about a single media file"""
+
+    def __init__(self, name: str = None, url: str = None, paths: typing.List[str] = None, favorite: bool = False,
+                 media_type: MediaTypes = MediaTypes.UNKNOWN):
+        self.name = name
+        self.url = url
+        self.paths = paths or []
+        self.favorite = favorite
+        self.media_type = media_type
+
+    def __str__(self):
+        paths = '\n\t       '.join([f'"{n}"' for n in self.paths])
+        return (f"FILENAME: {self.name} {'(FAVORITE)' if self.favorite else ''}\n"
+                f"\tTYPE: {self.media_type.value}\n"
+                f"\tPATHS: {paths}\n"
+                f"\tURL: {self.url}\n")
+
+
 class BuildInventory:
     FAVORITE = 'favorite'
     PATHS = 'paths'
@@ -66,11 +85,12 @@ class BuildInventory:
         extension = filename.split(".")[-1].lower()
         return self.MEDIA_TYPES[extension] if extension in self.MEDIA_TYPES else self.MEDIA_TYPES[self.UNKNOWN]
 
-    def _create_inv_record(self, url: str = None, paths_list: typing.List[str] = None, favorite: bool = False,
-                           media_type: MediaTypes = MediaTypes.UNKNOWN) -> typing.Dict[str, list]:
+    def _create_inv_record(self, name: str = None, url: str = None, paths_list: typing.List[str] = None,
+                           favorite: bool = False, media_type: MediaTypes = MediaTypes.UNKNOWN) -> MediaRecord:
         """
         Create blank record (or populate with known info)
-        
+
+        :param name: Name of media file
         :param url: URL for media type
         :param paths_list: file paths on disk
         :param favorite: Is this a favorite?
@@ -79,14 +99,9 @@ class BuildInventory:
         :return: Dictionary of info about medio file
 
         """
-        return {
-            self.URL: url,
-            self.PATHS: paths_list or [],
-            self.FAVORITE: favorite,
-            self.TYPE: media_type,
-        }
+        return MediaRecord(name=name, url=url, paths=paths_list, favorite=favorite, media_type=media_type)
 
-    def _update_record_from_filespec(self, file_spec: str, record: dict) -> dict:
+    def _update_record_from_filespec(self, file_spec: str, record: MediaRecord) -> MediaRecord:
         """
         Update the record based on info from the file_spec (favorites, add to path list, etc.)
 
@@ -102,24 +117,22 @@ class BuildInventory:
 
         # If filespec has specific directories in the name, mark it as a favorite.
         if len([f for f in favorites if f in file_spec.lower()]) > 0:
-            record[self.FAVORITE] = True
+            record.favorite = True
         else:
-            record[self.PATHS].append(file_spec)
+            record.paths.append(file_spec)
 
-        record[self.TYPE] = self._ext_type(file_spec.split(os.path.sep)[-1])
+        record.media_type = self._ext_type(file_spec.split(os.path.sep)[-1])
 
         return record
 
-    def build_inventory(self) -> typing.Tuple[typing.Dict[str, typing.Dict[str, typing.Any]], dict]:
+    def build_inventory(self) -> typing.Tuple[typing.Dict[str, MediaRecord], dict]:
         """
         Build a record (dictionary entry) for storing as a record.
 
         :return: Dictionary of filename:{dict of attributes}
 
         """
-        inv = {}
-        for name, url in self.records_on_file.items():
-            inv[name] = self._create_inv_record(url=url)
+        inv = dict([(name, self._create_inv_record(name=name, url=url)) for name, url in self.records_on_file.items()])
 
         for file_spec in self.file_specs:
             filename = file_spec.split(os.path.sep)[-1]
@@ -130,7 +143,7 @@ class BuildInventory:
 
         return inv, errors
 
-    def _validate_inventory(self, inventory: dict) -> typing.Tuple[dict, dict]:
+    def _validate_inventory(self, inventory: typing.Dict[str, MediaRecord]) -> typing.Tuple[dict, dict]:
         """
         Check the inventory for entries that do not exist on disk, are missing critical entries,
         or on disk but not in the inventory. If on disk, but not in the inventory, add it to the
@@ -153,7 +166,7 @@ class BuildInventory:
         # Check for file records in file and verify it is on disk (file might have been deleted)
         # If found, remove entry from inventory
         for filename in self.records_on_file.keys():
-            if not inventory[filename][self.PATHS]:
+            if not inventory[filename].paths:
                 print(f"*ERROR*:\n\tFile '{filename}' listed in the inventory but not found on disk.")
                 del inventory[filename]
 
@@ -165,6 +178,7 @@ class BuildInventory:
                 missing += 1
                 errors[self.MISSING_RECORD].append(filename)
                 inventory[filename] = self._create_inv_record(
+                    name=filename,
                     paths_list=[file_spec],
                     media_type=self._ext_type(filename),
                 )
@@ -173,13 +187,13 @@ class BuildInventory:
         # Check inventory to for entries that are missing data.
         # Record the file names of records with missing data
         for filename, media_data in inventory.items():
-            if not media_data[self.PATHS]:
+            if not media_data.paths:
                 errors[self.MISSING_PATH].append(filename)
 
-            if media_data[self.TYPE] == MediaTypes.UNKNOWN:
+            if media_data.media_type == MediaTypes.UNKNOWN:
                 errors[self.MISSING_TYPE].append(filename)
 
-            if media_data[self.URL] == MediaRecords.UNKNOWN or not media_data[self.URL].startswith("http"):
+            if media_data.url == MediaRecords.UNKNOWN or not media_data.url.startswith("http"):
                 errors[self.MISSING_URL].append(filename)
 
         return inventory, errors
@@ -217,23 +231,19 @@ class BuildInventory:
             if f_name in self.inv:
 
                 # If media_type filter is specified, do not process anything that does not match
-                if media_type is not None and self.inv[f_name][self.TYPE] != media_type:
+                if media_type is not None and self.inv[f_name].media_type != media_type:
                     continue
 
                 # If favorites filter is specified, do not process anything that does not match
-                if favorites is not None and self.inv[f_name][self.FAVORITE] != favorites:
+                if favorites is not None and self.inv[f_name].favorite != favorites:
                     continue
 
                 # If a keyword is specified and is not found in the path, do not process.
                 if (keyword is not None and
-                        len([path for path in self.inv[f_name][self.PATHS] if keyword.lower() in path.lower()]) == 0):
+                        len([path for path in self.inv[f_name].paths if keyword.lower() in path.lower()]) == 0):
                     continue
 
-                paths = '\n\t       '.join([f'"{n}"' for n in self.inv[f_name][self.PATHS]])
-                print(f"FILENAME: {f_name} {'(FAVORITE)' if self.inv[f_name][self.FAVORITE] else ''}\n"
-                      f"\tTYPE: {self.inv[f_name][self.TYPE].value}\n"
-                      f"\tPATHS: {paths}\n"
-                      f"\tURL: {self.inv[f_name][self.URL]}\n")
+                print(str(self.inv[f_name]))
                 num_recs_shown += 1
 
             else:
