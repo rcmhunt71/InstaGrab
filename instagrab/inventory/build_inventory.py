@@ -85,7 +85,8 @@ class BuildInventory:
         extension = filename.split(".")[-1].lower()
         return self.MEDIA_TYPES[extension] if extension in self.MEDIA_TYPES else self.MEDIA_TYPES[self.UNKNOWN]
 
-    def _create_inv_record(self, name: str = None, url: str = None, paths_list: typing.List[str] = None,
+    @staticmethod
+    def _create_inv_record(name: str = None, url: str = None, paths_list: typing.List[str] = None,
                            favorite: bool = False, media_type: MediaTypes = MediaTypes.UNKNOWN) -> MediaRecord:
         """
         Create blank record (or populate with known info)
