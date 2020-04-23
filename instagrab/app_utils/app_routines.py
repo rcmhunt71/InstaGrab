@@ -8,7 +8,7 @@ from instagrab.images.record_file import MediaRecords
 from instagrab.images.image_dl import GetMedia
 from instagrab.inventory.build_inventory import BuildInventory
 from instagrab.inventory.scanner import ScanFiles
-
+from instagrab.ui.main_window import start_ui
 
 def download_media(record_file: str, flush_records: int = 5, download_dir: str = None) -> typing.NoReturn:
     """
@@ -107,7 +107,7 @@ def download_media(record_file: str, flush_records: int = 5, download_dir: str =
 
 
 def inventory(records_file: str, download_dir: str = ".", file_ext_list: typing.List[str] = None,
-              cfg: InstaCfg = None) -> BuildInventory:
+              cfg: InstaCfg = None, debug=False) -> BuildInventory:
     """
     Take an inventory of known media.
     * Media contained in the DL file.
@@ -117,6 +117,7 @@ def inventory(records_file: str, download_dir: str = ".", file_ext_list: typing.
     :param download_dir: Root dir of where things were DL'd
     :param file_ext_list: File extensions to include in disk inventory
     :param cfg: InstaCfg object (for providing additional configuration options)
+    :param debug: Enable debugging
 
     :return: None
 
@@ -125,7 +126,8 @@ def inventory(records_file: str, download_dir: str = ".", file_ext_list: typing.
 
     disks = ScanFiles(root_directory=download_dir, file_exts_list=file_ext_list)
     on_file = MediaRecords(record_file=records_file)
-    inv = BuildInventory(records=on_file.get_file_name_dict(), known_files=disks.files, dl_dir=download_dir, cfg=cfg)
+    inv = BuildInventory(records=on_file.get_file_name_dict(), known_files=disks.files, dl_dir=download_dir, cfg=cfg,
+                         debug=debug)
     return inv
 
 
@@ -171,3 +173,8 @@ def query(records_file: str, filename: str = None, keyword: str = None,
 
     # Filter and display matching inventory based on provided criteria
     inv.show_records(**args)
+
+
+def ui(records_file: str, download_dir: str = ".", cfg: InstaCfg = None, debug=False) -> typing.NoReturn:
+    inventory(records_file=records_file, download_dir=download_dir, cfg=cfg, debug=debug)
+    start_ui(cfg=cfg)

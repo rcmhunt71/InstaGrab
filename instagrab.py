@@ -1,4 +1,4 @@
-from instagrab.app_utils.app_routines import download_media, inventory, query
+from instagrab.app_utils.app_routines import download_media, inventory, query, ui
 from instagrab.cli.args import CliArgParse
 from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants
@@ -39,6 +39,12 @@ if __name__ == "__main__":
         query(filename=args.filename, records_file=args.rec_file, download_dir=args.location,
               keyword=args.keyword, media_type=args.media_type, favorites=args.favorites,
               file_ext_list=standard_extensions, cfg=cfg, debug=args.debug)
+
+    # -----------------------------------
+    # UI
+    # -----------------------------------
+    elif args.parser == CliArgParse.UI:
+        ui(records_file=args.rec_file, download_dir=args.location, cfg=cfg, debug=args.debug)
 
     # Code should never get here, because a sub-parser command directive is required and is validated by CliArgParse.
     else:

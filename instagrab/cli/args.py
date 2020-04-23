@@ -28,6 +28,7 @@ class CliArgParse:
     DL = PARSER.get(ConfigConstants.DOWNLOAD, "dl")
     INV = PARSER.get(ConfigConstants.INVENTORY, 'inv')
     QUERY = PARSER.get(ConfigConstants.QUERY, 'query')
+    UI = PARSER.get(ConfigConstants.UI, 'ui')
 
     def __init__(self):
         # -------------------------------------------------------------------------
@@ -86,6 +87,15 @@ class CliArgParse:
                            help=f"Name of record file to track media. Default = '{record_file_name}'")
         query.add_argument('-l', '--location', default=dl_dir,
                            help=f"Relative root location for DL'd media. Default = '{dl_dir}'")
+
+        # -------------------------------------------------------------------------
+        # UI
+        # -------------------------------------------------------------------------
+        ui = subparser.add_parser(self.UI, help="   Start the UI")
+        ui.add_argument('-r', '--rec_file', default=record_file_name,
+                        help=f"Name of record file to track media. Default = '{record_file_name}'")
+        ui.add_argument('-l', '--location', default=dl_dir,
+                        help=f"Relative root location for DL'd media. Default = '{dl_dir}'")
 
         # -------------------------------------------------------------------------
         # PARSE COMMAND LINE ARGUMENTS

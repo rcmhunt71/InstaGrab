@@ -1,4 +1,5 @@
 import os
+import typing
 
 import yaml
 
@@ -18,3 +19,18 @@ class InstaCfg:
         if os.path.exists(self.file):
             cfg = yaml.safe_load(open(self.file, "r"))
         return cfg
+
+    def get_element(self, path: typing.List[str], default: typing.Any) -> typing.Any:
+        """
+        Traverses the config to quickly get the necessary requested value
+        :param path:
+        :param default:
+        :return:
+        """
+        location = self.config
+
+        print(f"PATH: {path}")
+
+        for elem in path[0:-1]:
+            location = location.get(elem, {})
+        return location.get(path[-1], default)

@@ -29,6 +29,10 @@ flags:
   - flag1
   - flag2
 
+ui:
+  height: 1200
+  width: 1600
+
 # --------------------------------------------------
 # PURE SILLINESS
 # --------------------------------------------------
@@ -37,3 +41,5 @@ parsers:
   download: dl
   inventory: inv
   query: query
+  ui: ui
+

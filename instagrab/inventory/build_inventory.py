@@ -59,7 +59,7 @@ class BuildInventory:
     MISSING_RECORD = "missing_record"
 
     def __init__(self, records: typing.Dict[str, str], known_files: typing.List[str],
-                 dl_dir: str, cfg: InstaCfg = None):
+                 dl_dir: str, cfg: InstaCfg = None, debug: bool = False):
         """
         Constructor for building data record
 
@@ -67,12 +67,14 @@ class BuildInventory:
         :param known_files: List of files from disk
         :param dl_dir: Download directory
         :param cfg: Additional configuration options (optional)
+        :param debug: Enable debugging.
 
         """
         self.records_on_file = records
         self.file_specs = known_files
         self.dl_dir = dl_dir
         self.cfg = cfg
+        self.debug = debug
         self.inv, self.errors = self.build_inventory()
         self.categories = self.get_categories()
 

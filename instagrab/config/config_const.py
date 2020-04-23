@@ -7,9 +7,11 @@ class ConfigConstants:
     EXTENSIONS = "extensions"
     FAVORITES = "favorites"
     FLAGS = "flags"
+    HEIGHT = "height"
     INVENTORY = "inventory"
     PARSERS = "parsers"
     QUERY = "query"
     RECORDS = "records"
+    UI = "ui"
+    WIDTH = "width"
     WRITE_EVERY = "write_every"
-
