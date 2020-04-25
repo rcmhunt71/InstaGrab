@@ -41,10 +41,10 @@ if __name__ == "__main__":
     # -----------------------------------
     # DOWNLOADS
     # -----------------------------------
-    dl_engine = ThreadedDL(record_file=args.rec_file, flush_records=flush, download_dir=args.location)
-    signal.signal(signal.SIGINT, handler)
-
     if args.parser == CliArgParse.DL:
+        dl_engine = ThreadedDL(record_file=args.rec_file, flush_records=flush, download_dir=args.location)
+        signal.signal(signal.SIGINT, handler)
+
         dl_engine.start_listening()
         while dl_engine.running:
             time.sleep(1)
