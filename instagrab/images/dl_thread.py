@@ -9,6 +9,8 @@ from instagrab.images.image_dl import GetMedia
 from instagrab.images.record_file import MediaRecords
 
 
+# TODO: Document (docstring and inlines) + typing + class level
+
 class ThreadedDL:
     def __init__(self, record_file: str = None, flush_records: int = 5, download_dir: str = None,
                  reporting_widget=None) -> typing.NoReturn:

@@ -2,6 +2,8 @@ import os
 import typing
 
 
+# TODO: Document class level
+
 class ScanFiles:
     def __init__(self, root_directory: str, file_exts_list=None) -> typing.NoReturn:
         """

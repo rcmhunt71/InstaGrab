@@ -1,6 +1,8 @@
 from instagrab.config.config_const import ConfigConstants as CfgConsts
 
 
+# TODO: Document (docstring and inlines) + typing + class level
+
 class UiUtils:
 
     @staticmethod

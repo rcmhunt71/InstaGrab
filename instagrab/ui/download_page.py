@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QLabel
 from instagrab.config.config_const import ConfigConstants as CfgConsts
 from instagrab.ui.ui_utilities import UiUtils
 
+# TODO: Document (docstring and inlines) + typing + class level
+
 
 class DownloadPage:
 

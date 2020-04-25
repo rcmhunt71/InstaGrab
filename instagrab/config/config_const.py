@@ -1,3 +1,5 @@
+# TODO: Document (class level)
+
 class ConfigConstants:
     BORDER = "border"
     CATEGORIES = "categories"

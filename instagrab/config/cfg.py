@@ -3,9 +3,10 @@ import typing
 
 import yaml
 
+# TODO: Document (class level)
 
 class InstaCfg:
-    def __init__(self, cfg_file):
+    def __init__(self, cfg_file: str) -> typing.NoReturn:
         self.file = cfg_file
         self.config = self.read_cfg_file()
 

@@ -8,6 +8,9 @@ from instagrab.config.config_const import ConfigConstants
 from instagrab.images.record_file import MediaRecords
 
 
+# TODO: Document class level
+
+
 class MediaTypes(Enum):
     VIDEO: str = "video"
     AUDIO: str = "audio"

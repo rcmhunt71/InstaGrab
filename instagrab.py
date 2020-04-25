@@ -8,6 +8,8 @@ from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants
 from instagrab.images.dl_thread import ThreadedDL
 
+# TODO: Document app level
+
 
 # -----------------------------------
 # Catch the Ctrl-C, and write DL'd media names to file.

@@ -7,6 +7,8 @@ import typing
 import requests
 
 
+# TODO: Document (docstring and inlines) + typing
+
 class GetMedia:
     IMAGE_NAME_PATTERN = re.compile(r'.*/(?P<image_name>.*(jpg|mp4))', re.IGNORECASE)
     DEFAULT_NAME_LENGTH = 15

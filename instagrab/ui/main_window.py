@@ -10,6 +10,8 @@ from instagrab.ui.download_page import DownloadPage
 from instagrab.ui.ui_utilities import UiUtils
 
 
+# TODO: Document (docstring and inlines) + typing + class level
+
 class InstaGrabMainUI(QMainWindow):
     DEFAULT_WIDTH = 400
     DEFAULT_HEIGHT = 400
