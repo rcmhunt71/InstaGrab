@@ -199,7 +199,9 @@ class BuildInventory:
             if media_data.media_type == MediaTypes.UNKNOWN:
                 errors[self.MISSING_TYPE].append(filename)
 
-            if media_data.url == MediaRecords.UNKNOWN or not media_data.url.startswith("http"):
+            if (media_data.url == MediaRecords.UNKNOWN or
+                    media_data.url is None or
+                    not media_data.url.startswith("http")):
                 errors[self.MISSING_URL].append(filename)
 
         return inventory, errors

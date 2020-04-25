@@ -8,6 +8,7 @@ from instagrab.images.record_file import MediaRecords
 from instagrab.images.image_dl import GetMedia
 from instagrab.inventory.build_inventory import BuildInventory
 from instagrab.inventory.scanner import ScanFiles
+from instagrab.images.dl_thread import ThreadedDL
 from instagrab.ui.main_window import start_ui
 
 
@@ -176,6 +177,7 @@ def query(records_file: str, filename: str = None, keyword: str = None,
     inv.show_records(**args)
 
 
-def ui(records_file: str, download_dir: str = ".", cfg: InstaCfg = None, debug=False) -> typing.NoReturn:
+def ui(records_file: str, dl_engine: ThreadedDL, download_dir: str = ".", cfg: InstaCfg = None, debug=False) -> typing.NoReturn:
+
     inventory(records_file=records_file, download_dir=download_dir, cfg=cfg, debug=debug)
-    start_ui(cfg=cfg)
+    start_ui(cfg=cfg, dl_engine=dl_engine)

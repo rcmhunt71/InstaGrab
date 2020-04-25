@@ -1,4 +1,5 @@
 import queue
+import sys
 import threading
 import time
 import typing
@@ -9,9 +10,14 @@ from instagrab.images.image_dl import GetMedia
 from instagrab.images.record_file import MediaRecords
 
 
+sys.stdout.flush()
+
 # TODO: Document (docstring and inlines) + typing + class level
 
+
 class ThreadedDL:
+    QUEUE_SIZE = 5
+
     def __init__(self, record_file: str = None, flush_records: int = 5, download_dir: str = None,
                  reporting_widget=None) -> typing.NoReturn:
         self.record_file = record_file
@@ -19,8 +25,8 @@ class ThreadedDL:
         self.download_dir = download_dir
         self.reporting_widget = reporting_widget
         self.dl_thread = None
-        self.queue = queue.Queue(maxsize=5)
-        self.running = None
+        self.queue = queue.Queue(maxsize=self.QUEUE_SIZE)
+        self.running = False
         self.all_records = {}
         self.media_records = None
         self.has_dl = False
@@ -30,17 +36,18 @@ class ThreadedDL:
             self.running = True
             self.dl_thread = threading.Thread(
                 target=self._dl_media,
-                args=(self.record_file, self.flush_records, self.download_dir),
+                args=(self.record_file, self.flush_records, self.download_dir, self.queue),
                 daemon=True)
             self.dl_thread.start()
+            self.queue.put_nowait(self.running)
 
     def stop_listening(self):
         # Send stop to queue
         print("Stopping DL thread")
         self.running = False
-        self.queue.put(self.running)
+        self.queue.put_nowait(self.running)
 
-    def _dl_media(self, record_file, flush_records, download_dir):
+    def _dl_media(self, record_file, flush_records, download_dir, dl_queue):
 
         self.media_records = MediaRecords(record_file=record_file)
         self.all_records = self.media_records.get_file_name_dict()
@@ -51,18 +58,28 @@ class ThreadedDL:
         # Clear copy buffer of any old contents
         pyperclip.copy('')
 
+        running = True
         # -----------------------------------
         # Until signaled to stop
         # -----------------------------------
-        while self.running:
+        while running:
 
-            if not self.queue.empty():
-                self.running = self.queue.get()
+            if not dl_queue.empty():
+                running = dl_queue.get()
+                if not running:
+                    if self.has_dl:
+                        self.media_records.record_file_names(self.all_records)
+                    else:
+                        print("No DLs completed.")
+                    print("DL Engine is off...")
 
             # -----------------------------------
             # Get the URL from the copy buffer (non-blocking)
             # -----------------------------------
-            url = pyperclip.waitForPaste()
+            try:
+                url = pyperclip.waitForPaste(0.25)
+            except pyperclip.PyperclipTimeoutException:
+                continue
 
             # -----------------------------------
             # Make sure the text from the buffer is a new/unique URL

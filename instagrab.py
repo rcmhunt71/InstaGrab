@@ -70,7 +70,8 @@ if __name__ == "__main__":
     # UI
     # -----------------------------------
     elif args.parser == CliArgParse.UI:
-        ui(records_file=args.rec_file, download_dir=args.location, cfg=cfg, debug=args.debug)
+        dl_engine = ThreadedDL(record_file=args.rec_file, flush_records=flush, download_dir=args.location)
+        ui(records_file=args.rec_file, download_dir=args.location, cfg=cfg, dl_engine=dl_engine, debug=args.debug)
 
     # Code should never get here, because a sub-parser command directive is required and is validated by CliArgParse.
     else:

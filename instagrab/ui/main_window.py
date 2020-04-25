@@ -6,7 +6,8 @@ from PyQt5.QtWidgets import QWidget
 
 from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants as CfgConsts
-from instagrab.ui.download_page import DownloadPage
+from instagrab.ui.downloads.download_page import DownloadPage
+from instagrab.ui.downloads.dl_controller import DLController
 from instagrab.ui.ui_utilities import UiUtils
 
 
@@ -39,9 +40,11 @@ class InstaGrabMainUI(QMainWindow):
         self.generalLayout.addLayout(self.download_page.layout)
 
 
-def start_ui(cfg: InstaCfg = None):
+def start_ui(dl_engine, cfg: InstaCfg = None):
     insta_grab_app = QApplication(sys.argv)
     view = InstaGrabMainUI(cfg=cfg)
     view.show()
+
+    DLController(dl_view=view.download_page, model=dl_engine)
 
     sys.exit(insta_grab_app.exec())

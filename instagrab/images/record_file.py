@@ -52,4 +52,4 @@ class MediaRecords:
         with open(self.record_file, "w") as RECORDS:
             for name, location_url in record_dict.items():
                 RECORDS.write(f"{name}{self.DELIMITER}{location_url}\n")
-        print(f"\nWrote {len(record_dict.keys())} records to: {self.record_file}\n")
+        print(f"\nWrote {len(record_dict.keys())} records to: {self.record_file}\n", flush=True)
