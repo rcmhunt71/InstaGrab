@@ -29,13 +29,24 @@ flags:
   - flag1
   - flag2
 
+# --------------------------------------------------
+# UI Dimensions and Ratios
+# --------------------------------------------------
 ui:
   general:
     height: 1200
     width: 1600
   download:
-    height: 800
-    width: 1200
+    text:
+      ratio:
+        height: 0.875
+        width: 0.50
+    image:
+      ratio:
+        height: 0.875
+        width: 0.50
+    border: 10
+
 
 # --------------------------------------------------
 # PURE SILLINESS
