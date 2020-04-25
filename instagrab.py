@@ -1,7 +1,25 @@
+import signal
+import time
+import typing
+
 from instagrab.app_utils.app_routines import download_media, inventory, query, ui
 from instagrab.cli.args import CliArgParse
 from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants
+from instagrab.images.dl_thread import ThreadedDL
+
+
+# -----------------------------------
+# Catch the Ctrl-C, and write DL'd media names to file.
+# -----------------------------------
+def handler(signal_received: signal.SIGINT, frame: typing.Any):
+    print("Control-C captured, exiting.")
+
+    # If there was a file DL'd, write all metadata to file before exiting
+    if dl_engine.has_dl:
+        dl_engine.stop_listening()
+        dl_engine.media_records.record_file_names(dl_engine.all_records)
+    exit(0)
 
 
 if __name__ == "__main__":
@@ -23,8 +41,13 @@ if __name__ == "__main__":
     # -----------------------------------
     # DOWNLOADS
     # -----------------------------------
+    dl_engine = ThreadedDL(record_file=args.rec_file, flush_records=flush, download_dir=args.location)
+    signal.signal(signal.SIGINT, handler)
+
     if args.parser == CliArgParse.DL:
-        download_media(record_file=args.rec_file, flush_records=flush, download_dir=args.location)
+        dl_engine.start_listening()
+        while dl_engine.running:
+            time.sleep(1)
 
     # -----------------------------------
     # INVENTORY
