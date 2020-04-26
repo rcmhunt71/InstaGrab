@@ -2,7 +2,7 @@ from functools import partial
 import sys
 
 from PyQt5.QtCore import QThread
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
 
@@ -32,14 +32,32 @@ class InstaGrabMainUI(QMainWindow):
 
         self.setWindowTitle("InstaGrab")
         self.setFixedSize(width, height)
-        self.generalLayout = QVBoxLayout()
 
-        self._centralWidget = QWidget(self)
-        self._centralWidget.setLayout(self.generalLayout)
+        # Define Download Tab
+        self.download_page = DownloadPage(parent=self, title="Download Images")
+
+        self.dl_widget = QWidget()
+        self.dl_layout = QVBoxLayout()
+        self.dl_layout.addLayout(self.download_page.layout)
+        self.dl_widget.setLayout(self.dl_layout)
+
+        # Define Classification Tab
+        self.classification_widget = QWidget()
+        self.classification_layout = QVBoxLayout()
+        self.classification_widget.setLayout(self.classification_layout)
+
+        # Define Query Tab
+        self.query_widget = QWidget()
+        self.query_layout = QVBoxLayout()
+        self.query_widget.setLayout(self.query_layout)
+
+        # Define (and assemble) Tabbed Viewer
+        self._centralWidget = QTabWidget(self)
+        self._centralWidget.addTab(self.dl_widget, "Downloads")
+        self._centralWidget.addTab(self.classification_widget, "Classification")
+        self._centralWidget.addTab(self.query_widget, "Browsing")
         self.setCentralWidget(self._centralWidget)
 
-        self.download_page = DownloadPage(parent=self, title="Download Images")
-        self.generalLayout.addLayout(self.download_page.layout)
 
 
 def start_ui(dl_engine, cfg: InstaCfg = None):
