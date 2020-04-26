@@ -46,6 +46,18 @@ ui:
         height: 0.875
         width: 0.67
     border: 10
+  query:
+    view:
+      ratio:
+        height: 0.875
+        width: 0.33
+    image:
+      ratio:
+        height: 0.875
+        width: 0.67
+
+test:
+  image: <test_image_here>
 
 
 # --------------------------------------------------
