@@ -40,11 +40,11 @@ ui:
     text:
       ratio:
         height: 0.875
-        width: 0.50
+        width: 0.33
     image:
       ratio:
         height: 0.875
-        width: 0.50
+        width: 0.67
     border: 10
 
 
