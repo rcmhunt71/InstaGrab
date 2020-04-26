@@ -10,6 +10,7 @@ from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants as CfgConsts
 from instagrab.ui.downloads.download_page import DownloadPage
 from instagrab.ui.downloads.dl_controller import DLController, DLInfoListener
+from instagrab.ui.query.query_page import QueryPage
 from instagrab.ui.ui_utilities import UiUtils
 
 
@@ -35,7 +36,6 @@ class InstaGrabMainUI(QMainWindow):
 
         # Define Download Tab
         self.download_page = DownloadPage(parent=self, title="Download Images")
-
         self.dl_widget = QWidget()
         self.dl_layout = QVBoxLayout()
         self.dl_layout.addLayout(self.download_page.layout)
@@ -47,8 +47,10 @@ class InstaGrabMainUI(QMainWindow):
         self.classification_widget.setLayout(self.classification_layout)
 
         # Define Query Tab
+        self.query_page = QueryPage(parent=self, title="Query Page")
         self.query_widget = QWidget()
         self.query_layout = QVBoxLayout()
+        self.query_layout.addLayout(self.query_page.layout)
         self.query_widget.setLayout(self.query_layout)
 
         # Define (and assemble) Tabbed Viewer
@@ -57,7 +59,6 @@ class InstaGrabMainUI(QMainWindow):
         self._centralWidget.addTab(self.classification_widget, "Classification")
         self._centralWidget.addTab(self.query_widget, "Browsing")
         self.setCentralWidget(self._centralWidget)
-
 
 
 def start_ui(dl_engine, cfg: InstaCfg = None):

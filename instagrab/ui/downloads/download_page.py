@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QGridLayout, QPushButton, QLabel, QPlainTextEdit
-from PyQt5.QtGui import QImage, QPixmap, QMovie, QFont
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QImage, QPixmap, QMovie, QFont
+from PyQt5.QtWidgets import QGridLayout, QPushButton, QLabel, QPlainTextEdit
 
 from instagrab.config.config_const import ConfigConstants as CfgConsts
 from instagrab.ui.ui_utilities import UiUtils
@@ -28,9 +28,9 @@ class DownloadPage:
         self.image_view = self._define_image_view()
         self.dl_info_view = self._define_dl_info_view(text='')
 
-        self._create_download_page()
+        self._create_page()
 
-    def _create_download_page(self):
+    def _create_page(self):
         row_span = col_span = 4
 
         #                        widget,     X,    Y,    R_SPAN,    C_SPAN
@@ -91,7 +91,7 @@ class DownloadPage:
         return dl_info
 
     def _define_image_view(self):
-        image = QLabel()
+        image_view = QLabel()
         image_width = self.parent.DEFAULT_WIDTH * 0.5
         image_height = self.parent.DEFAULT_HEIGHT * 0.875
 
@@ -109,11 +109,11 @@ class DownloadPage:
             image_width = (total_width * image_width_ratio) - border
             image_height = (total_height * image_height_ratio) - border
 
-        image.setFixedSize(image_width, image_height)
-        image.setAlignment(Qt.AlignCenter)
-        image.setAutoFillBackground(True)
+        image_view.setFixedSize(image_width, image_height)
+        image_view.setAlignment(Qt.AlignCenter)
+        image_view.setAutoFillBackground(True)
 
-        return image
+        return image_view
 
     def update_download_info(self, text):
         # Normal text from DL process - updates the msg text label.

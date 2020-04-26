@@ -18,6 +18,8 @@ class ConfigConstants:
     RATIO = "ratio"
     RECORDS = "records"
     TEXT = "text"
+    TEST = "test"
     UI = "ui"
+    VIEW = "view"
     WIDTH = "width"
     WRITE_EVERY = "write_every"
