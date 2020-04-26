@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+import pickle
 import pprint
 import typing
 
@@ -60,6 +61,8 @@ class BuildInventory:
     MISSING_TYPE = "missing_type"
     MISSING_URL = "missing_url"
     MISSING_RECORD = "missing_record"
+
+    INVENTORY_ARCHIVE_FILE = "inventory.dat"
 
     def __init__(self, records: typing.Dict[str, str], known_files: typing.List[str],
                  dl_dir: str, cfg: InstaCfg = None, debug: bool = False):
@@ -131,6 +134,18 @@ class BuildInventory:
 
         return record
 
+    def archive_inventory(self, inv=None):
+        inv = inv or self.inv
+        with open(self.INVENTORY_ARCHIVE_FILE, "wb") as ARCHIVE:
+            ARCHIVE.write(pickle.dumps(obj=inv))
+        print(f"Wrote archive file: {self.INVENTORY_ARCHIVE_FILE}")
+
+    def get_archived_inventory(self):
+        with open(self.INVENTORY_ARCHIVE_FILE, "rb") as ARCHIVE:
+            inv = pickle.load(ARCHIVE)
+        print(f"Read archived inventory from {self.INVENTORY_ARCHIVE_FILE}")
+        return inv
+
     def build_inventory(self) -> typing.Tuple[typing.Dict[str, MediaRecord], dict]:
         """
         Build a record (dictionary entry) for storing as a record.
@@ -146,7 +161,7 @@ class BuildInventory:
                 inv[filename] = self._update_record_from_filespec(file_spec=file_spec, record=inv[filename])
 
         inv, errors = self._validate_inventory(inventory=inv)
-
+        self.archive_inventory(inv)
         return inv, errors
 
     def _validate_inventory(self, inventory: typing.Dict[str, MediaRecord]) -> typing.Tuple[dict, dict]:
