@@ -1,4 +1,5 @@
 import os
+from queue import Queue
 import typing
 
 
@@ -40,11 +41,12 @@ class MediaRecords:
         print(f"Records processed: {len(lines)}")
         return records
 
-    def record_file_names(self, record_dict: typing.Dict[str, str]) -> typing.NoReturn:
+    def record_file_names(self, record_dict: typing.Dict[str, str], msg_queue: Queue = None) -> typing.NoReturn:
         """
         Write all records to file (list format).
 
         :param record_dict: Dictionary of records {id: metadata}
+        :param msg_queue: Msg queue for UI interactions (default=None)
 
         :return: None
 
@@ -52,4 +54,8 @@ class MediaRecords:
         with open(self.record_file, "w") as RECORDS:
             for name, location_url in record_dict.items():
                 RECORDS.write(f"{name}{self.DELIMITER}{location_url}\n")
-        print(f"\nWrote {len(record_dict.keys())} records to: {self.record_file}\n", flush=True)
+        msg = f"\nWrote {len(record_dict.keys())} records to: {self.record_file}\n"
+        print(msg, flush=True)
+
+        if msg_queue is not None:
+            msg_queue.put(msg)

@@ -25,40 +25,42 @@ class ThreadedDL:
         self.download_dir = download_dir
         self.reporting_widget = reporting_widget
         self.dl_thread = None
-        self.queue = queue.Queue(maxsize=self.QUEUE_SIZE)
+        self.thread_control_queue = queue.Queue(maxsize=self.QUEUE_SIZE)
+        self.dl_resp_queue = queue.Queue()
         self.running = False
         self.all_records = {}
         self.media_records = None
         self.has_dl = False
 
+    def _msg(self, msg):
+        print(msg)
+        self.dl_resp_queue.put(msg)
+
     def start_listening(self):
         if not self.running:
             self.running = True
             self.dl_thread = threading.Thread(
-                target=self._dl_media,
-                args=(self.record_file, self.flush_records, self.download_dir, self.queue),
-                daemon=True)
+                target=self._dl_media, daemon=True,
+                args=(self.record_file, self.flush_records, self.download_dir, self.thread_control_queue))
             self.dl_thread.start()
-            self.queue.put_nowait(self.running)
+            self.thread_control_queue.put_nowait(self.running)
 
     def stop_listening(self):
-        # Send stop to queue
-        print("Stopping DL thread")
         self.running = False
-        self.queue.put_nowait(self.running)
+        self.thread_control_queue.put_nowait(self.running)
 
     def _dl_media(self, record_file, flush_records, download_dir, dl_queue):
 
-        self.media_records = MediaRecords(record_file=record_file)
-        self.all_records = self.media_records.get_file_name_dict()
-
+        running = True
         old_url = None
         dl_total = 0
 
         # Clear copy buffer of any old contents
         pyperclip.copy('')
 
-        running = True
+        self.media_records = MediaRecords(record_file=record_file)
+        self.all_records = self.media_records.get_file_name_dict()
+
         # -----------------------------------
         # Until signaled to stop
         # -----------------------------------
@@ -68,10 +70,11 @@ class ThreadedDL:
                 running = dl_queue.get()
                 if not running:
                     if self.has_dl:
-                        self.media_records.record_file_names(self.all_records)
+                        self.media_records.record_file_names(
+                            record_dict=self.all_records, msg_queue=self.dl_resp_queue)
                     else:
-                        print("No DLs completed.")
-                    print("DL Engine is off...")
+                        self._msg("No downloads detected.")
+                    self._msg("DL Engine is off...")
 
             # -----------------------------------
             # Get the URL from the copy buffer (non-blocking)
@@ -104,28 +107,28 @@ class ThreadedDL:
 
                 # Download the target media from the provided URL
                 try:
-                    media.download_media()
+                    media.download_media(msg_queue=self.dl_resp_queue)
                     old_url = media.url
 
                 except Exception as exc:
                     self.media_records.record_file_names(self.all_records)
-                    print(f"ERROR: {exc}")
+                    self._msg(f"ERROR: {exc}")
                     dl_total -= 1
 
                 # Write all of the metadata to file after flush_records DLs
                 else:
                     self.has_dl = True
                     if dl_total % flush_records == 0:
-                        self.media_records.record_file_names(self.all_records)
+                        self.media_records.record_file_names(self.all_records, msg_queue=self.dl_resp_queue)
 
             # if the file has the media file name but not the URL, save the URL
             elif self.all_records[media.name] == MediaRecords.UNKNOWN:
                 self.all_records[media.name] = media.url
-                print(f"URL updated for {media.name}")
+                self._msg(f"URL updated for {media.name}")
 
             # -----------------------------------
             # Duplicate media file (it was found in the list), so don't DL the media file.
             # -----------------------------------
             else:
-                print(f"NOTE: Media file '{media.name}' has already been downloaded.")
+                self._msg(f"NOTE: Media file '{media.name}' has already been downloaded.")
                 old_url = media.url

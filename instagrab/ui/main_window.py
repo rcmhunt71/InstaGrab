@@ -1,5 +1,7 @@
+from functools import partial
 import sys
 
+from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtWidgets import QVBoxLayout
 from PyQt5.QtWidgets import QWidget
@@ -7,7 +9,7 @@ from PyQt5.QtWidgets import QWidget
 from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants as CfgConsts
 from instagrab.ui.downloads.download_page import DownloadPage
-from instagrab.ui.downloads.dl_controller import DLController
+from instagrab.ui.downloads.dl_controller import DLController, DLInfoListener
 from instagrab.ui.ui_utilities import UiUtils
 
 
@@ -45,6 +47,16 @@ def start_ui(dl_engine, cfg: InstaCfg = None):
     view = InstaGrabMainUI(cfg=cfg)
     view.show()
 
-    DLController(dl_view=view.download_page, model=dl_engine)
+    # Add Download View DL_INFO listener/updater.
+    # add_dl_info_update_listener(view, dl_engine)
+    dl_controller = DLController(dl_view=view.download_page, model=dl_engine)
+    dl_info_thread = QThread()
+
+    dl_info_update = DLInfoListener(queue=dl_controller.model.dl_resp_queue)
+    dl_info_update.update_line_edit_signal.connect(view.download_page.update_download_info)
+    dl_info_update.moveToThread(dl_info_thread)
+
+    dl_info_thread.started.connect(dl_info_update.run)
+    dl_info_thread.start()
 
     sys.exit(insta_grab_app.exec())

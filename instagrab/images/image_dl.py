@@ -1,4 +1,5 @@
 import os
+from queue import Queue
 import re
 import string
 import random
@@ -44,9 +45,11 @@ class GetMedia:
         rel_media_dir = rel_media_dir or self.media_dir
         return os.path.sep.join([rel_media_dir, self.get_media_file_name()])
 
-    def download_media(self) -> typing.NoReturn:
+    def download_media(self, msg_queue: Queue = None) -> typing.NoReturn:
         """
         Download the media and write to a binary file.
+
+        :param msg_queue: For UI interactions, also put the msg on the queue to provide to UI
 
         :return: None
 
@@ -56,6 +59,9 @@ class GetMedia:
         with open(target_file, 'wb') as BIN:
             for characters in response:
                 BIN.write(characters)
-        if self.index > -1:
-            print(f"{self.index}) ", end='')
-        print(f"Wrote: {target_file}")
+        msg = f"{self.index}) " if self.index > -1 else ''
+        msg += f"Wrote: {target_file}"
+        print(msg)
+        if msg_queue is not None:
+            msg_queue.put(msg)
+            msg_queue.put(f"**{os.path.abspath(target_file)}")
