@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QGridLayout, QPushButton, QLabel, QPlainTextEdit
-from PyQt5.QtGui import QImage, QPixmap
-
+from PyQt5.QtGui import QImage, QPixmap, QMovie, QFont
+from PyQt5.QtCore import Qt
 
 from instagrab.config.config_const import ConfigConstants as CfgConsts
 from instagrab.ui.ui_utilities import UiUtils
@@ -10,20 +10,23 @@ from instagrab.ui.ui_utilities import UiUtils
 
 class DownloadPage:
 
-    QUEUE_IMAGE_DELIMITER = "**"
+    QUEUE_IMAGE_DELIMITER = "||"
     DEFAULT_PANE_WIDTH_RATIO = 0.50
     DEFAULT_PANE_HEIGHT_RATIO = 0.75
     DEFAULT_BORDER = 10
 
+    ENGINE_ON = "Stop Downloads"
+    ENGINE_OFF = "Start Downloads"
+
     def __init__(self, parent, title=None):
         self.parent = parent
-        self.layout = QGridLayout()
         self.include_title = title is not None
-        self.start_button = self._define_push_button("Start Downloads")
-        self.stop_button = self._define_push_button("Stop Downloads")
-        self.title = self._define_title(title)
-        self.image = self._define_image()
-        self.dl_info = self._define_dl_info(text='')
+
+        self.layout = QGridLayout()
+        self.engine_button = self._define_check_push_button(initial_state=self.ENGINE_OFF)
+        self.title_field = self._define_title_field(title)
+        self.image_view = self._define_image_view()
+        self.dl_info_view = self._define_dl_info_view(text='')
 
         self._create_download_page()
 
@@ -31,26 +34,30 @@ class DownloadPage:
         row_span = col_span = 4
 
         #                        widget,     X,    Y,    R_SPAN,    C_SPAN
-        self.layout.addWidget(self.dl_info, int(self.include_title), 0, row_span, col_span)
-        self.layout.addWidget(self.image, int(self.include_title), col_span, row_span, col_span)
-        self.layout.addWidget(self.start_button, int(self.include_title) + row_span, 0)
-        self.layout.addWidget(self.stop_button,  int(self.include_title) + row_span, 1)
+        self.layout.addWidget(self.dl_info_view, int(self.include_title), 0, row_span, col_span)
+        self.layout.addWidget(self.image_view, int(self.include_title), col_span, row_span, col_span)
+        self.layout.addWidget(self.engine_button, int(self.include_title) + row_span, 0)
 
         if self.include_title:
-            self.layout.addWidget(self.title, 0, 0)
+            self.layout.addWidget(self.title_field, 0, 0)
 
     @staticmethod
-    def _define_title(title):
+    def _define_title_field(title):
         title = title or "Title Not Set"
         return QLabel(str(title))
 
     @staticmethod
-    def _define_push_button(title, width=200, height=40):
-        button = QPushButton(title)
+    def _define_check_push_button(initial_state, width=200, height=40, checked=False):
+        button = QPushButton(initial_state)
         button.setFixedSize(width, height)
+        button.setCheckable(True)
+        button.setChecked(checked)
+        style_sheet = ("QPushButton{background-color:lightgreen;}" 
+                       "QPushButton:checked{background-color:rgb(255, 184, 196);}")
+        button.setStyleSheet(style_sheet)
         return button
 
-    def _define_dl_info(self, text=None):
+    def _define_dl_info_view(self, text=None):
         border = self.DEFAULT_BORDER
         text_width = self.parent.DEFAULT_WIDTH * self.DEFAULT_PANE_WIDTH_RATIO
         text_height = self.parent.DEFAULT_HEIGHT * self.DEFAULT_PANE_HEIGHT_RATIO
@@ -75,12 +82,16 @@ class DownloadPage:
         if text is not None:
             dl_info.insertPlainText(text)
 
+        font = QFont()
+        font.setFamily("Courier New")
+
+        doc = dl_info.document()
+        doc.setDefaultFont(font)
+
         return dl_info
 
-    def _define_image(self):
+    def _define_image_view(self):
         image = QLabel()
-        # image = QLineEdit()
-
         image_width = self.parent.DEFAULT_WIDTH * 0.5
         image_height = self.parent.DEFAULT_HEIGHT * 0.875
 
@@ -98,22 +109,27 @@ class DownloadPage:
             image_width = (total_width * image_width_ratio) - border
             image_height = (total_height * image_height_ratio) - border
 
-        image.setScaledContents(True)
         image.setFixedSize(image_width, image_height)
+        image.setAlignment(Qt.AlignCenter)
         image.setAutoFillBackground(True)
 
         return image
 
     def update_download_info(self, text):
+        # Normal text from DL process - updates the msg text label.
         if not text.startswith(self.QUEUE_IMAGE_DELIMITER):
-            self.dl_info.insertPlainText(f"{text}\n")
-            self.dl_info.update()
+            self.dl_info_view.insertPlainText(f"{text}\n")
+            self.dl_info_view.update()
+
+        # Detected File Msg delimiter. This will update the image QLabel.
         else:
             filename = text.split(self.QUEUE_IMAGE_DELIMITER)[-1]
             if filename.endswith('jpg'):
-                image = QImage(filename)
-                self.image.setPixmap(QPixmap.fromImage(image))
-                self.image.adjustSize()
-            else:
-                self.image.setText(f"Cannot display: {filename}")
-            self.image.update()
+                pix_map = QPixmap.fromImage(QImage(filename)).scaled(
+                    self.image_view.size(),
+                    aspectRatioMode=Qt.KeepAspectRatio, transformMode=Qt.SmoothTransformation)
+                self.image_view.setPixmap(pix_map)
+            elif filename.endswith('mp4'):
+                image = QMovie(filename)
+                image.start()
+            self.image_view.update()
