@@ -1,1 +1,11 @@
+Initialization:
 * Rework CFG to be updated with any CLI args that have overridden the values (but do not save the cfg file).
+
+UI:
+* Blinking button when DLEngine is enabled.
+* Clean up DL Engine listener thread prior to quitting.
+* Image sizing - keep at 1:1, or x:x but fit within viewer.
+
+
+GENERAL:
+* Address all documentation TODOs
