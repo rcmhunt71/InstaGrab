@@ -125,13 +125,12 @@ class BuildInventory:
             self.cfg.get_element(path=[ConfigConstants.CATEGORIES, ConfigConstants.FAVORITES], default=[]))
 
         # If filespec has specific directories in the name, mark it as a favorite.
-        if len([f for f in favorites if f in file_spec.lower()]) > 0:
+        if [fav for fav in favorites if fav in file_spec.lower()]:
             record.favorite = True
         else:
             record.paths.append(file_spec)
 
         record.media_type = self._ext_type(file_spec.split(os.path.sep)[-1])
-
         return record
 
     def archive_inventory(self, inv=None):
