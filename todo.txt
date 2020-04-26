@@ -4,6 +4,7 @@ Initialization:
 UI:
 * Clean up DL Engine listener thread prior to quitting.
 * Add tabbed view in primary view.
+* Fix MP4 displaying issue (!display)
 
 GENERAL:
 * Address all documentation TODOs

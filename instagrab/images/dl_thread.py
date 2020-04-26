@@ -33,16 +33,19 @@ class ThreadedDL:
         self.has_dl = False
 
     def _msg(self, msg):
-        print(msg)
+        print(msg, flush=True)
         self.dl_resp_queue.put(msg)
 
     def start_listening(self):
-        if not self.running:
+        if not self.running or self.running is None:
             self.running = True
             self.dl_thread = threading.Thread(
                 target=self._dl_media, daemon=True,
                 args=(self.record_file, self.flush_records, self.download_dir, self.thread_control_queue))
             self.dl_thread.start()
+            self._msg("+----------------------------+\n"
+                      "|   DL Engine has started.   |\n"
+                      "+----------------------------+")
             self.thread_control_queue.put_nowait(self.running)
 
     def stop_listening(self):
@@ -74,7 +77,9 @@ class ThreadedDL:
                             record_dict=self.all_records, msg_queue=self.dl_resp_queue)
                     else:
                         self._msg("No downloads detected.")
-                    self._msg("DL Engine is off...")
+                    self._msg("+----------------------------+\n"
+                              "|   DL Engine has stopped.   |\n"
+                              "+----------------------------+")
 
             # -----------------------------------
             # Get the URL from the copy buffer (non-blocking)

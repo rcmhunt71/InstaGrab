@@ -7,8 +7,10 @@ import typing
 
 import requests
 
+from instagrab.ui.downloads.download_page import DownloadPage
 
 # TODO: Document (docstring and inlines) + typing
+
 
 class GetMedia:
     IMAGE_NAME_PATTERN = re.compile(r'.*/(?P<image_name>.*(jpg|mp4))', re.IGNORECASE)
@@ -64,4 +66,4 @@ class GetMedia:
         print(msg)
         if msg_queue is not None:
             msg_queue.put(msg)
-            msg_queue.put(f"**{os.path.abspath(target_file)}")
+            msg_queue.put(f"{DownloadPage.QUEUE_IMAGE_DELIMITER}{os.path.abspath(target_file)}")

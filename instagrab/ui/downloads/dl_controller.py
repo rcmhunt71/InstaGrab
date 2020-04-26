@@ -9,13 +9,21 @@ class DLController:
     def __init__(self, dl_view, model):
         self._view = dl_view
         self.model = model
-        # self.listener = DLListener(queue=model.dl_resp_queue)
         self._connect_signals()
 
     def _connect_signals(self):
-        self._view.start_button.clicked.connect(self.model.start_listening)
-        self._view.stop_button.clicked.connect(self.model.stop_listening)
-        # self.listener.update_line_edit.connect(self._view.update_dl_info)
+        self._view.engine_button.clicked.connect(self._dl_engine_control)
+
+    def _dl_engine_control(self):
+        # Download has been turned on, and change label to next state
+        if self._view.engine_button.isChecked():
+            self._view.engine_button.setText(self._view.ENGINE_ON)
+            self.model.start_listening()
+
+        # Download has been turned off, change label to next state
+        else:
+            self._view.engine_button.setText(self._view.ENGINE_OFF)
+            self.model.stop_listening()
 
 
 class DLInfoListener(QObject):
