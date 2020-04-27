@@ -8,3 +8,4 @@ UI:
 
 GENERAL:
 * Address all documentation TODOs
+* Strange output errors from pyperclip - saves URL, but filename is munged. Can be corrected manually by reDL'ing and updating file.

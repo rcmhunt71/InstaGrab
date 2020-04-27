@@ -21,11 +21,11 @@ class QueryPage:
         self.explorer_view = self._define_explorer_panel()
 
         self._create_page()
-        self.update_viewer(self.parent.cfg.get_element([CfgConsts.TEST, CfgConsts.IMAGE], ''))
+        self.update_image_viewer(self.parent.cfg.get_element([CfgConsts.TEST, CfgConsts.IMAGE], ''))
 
     def _create_page(self):
         self.layout.addWidget(self.explorer_view, int(self.include_title), 0, 8, 5)
-        self.layout.addWidget(self.image_view, int(self.include_title), 3, 8, 10)
+        self.layout.addWidget(self.image_view, int(self.include_title), 5, 8, 10)
 
     def _define_image_view(self):
         image_view = QLabel()
@@ -77,7 +77,7 @@ class QueryPage:
 
         return explorer
 
-    def update_viewer(self, text):
+    def update_image_viewer(self, text):
         # Normal text from DL process - updates the msg text label.
         # Detected File Msg delimiter. This will update the image QLabel.
 

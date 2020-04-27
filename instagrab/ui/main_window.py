@@ -73,6 +73,7 @@ def start_ui(dl_engine, cfg: InstaCfg = None):
 
     dl_info_update = DLInfoListener(queue=dl_controller.model.dl_resp_queue)
     dl_info_update.update_line_edit_signal.connect(view.download_page.update_download_info)
+    dl_info_update.update_line_edit_signal.connect(view.query_page.update_image_viewer)
     dl_info_update.moveToThread(dl_info_thread)
 
     dl_info_thread.started.connect(dl_info_update.run)
