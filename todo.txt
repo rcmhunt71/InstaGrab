@@ -3,8 +3,11 @@ Initialization:
 
 UI:
 * Clean up DL Engine listener thread prior to quitting.
-* Add tabbed view in primary view.
 * Fix MP4 displaying issue (!display)
+* When exiting, take a final inventory.
+* Check and debug errors when scaling images:
+  >> QPixmap::scaled: Pixmap is a null pixmap
+  >> qt.gui.icc: fromIccProfile: failed minimal tag size sanity
 
 GENERAL:
 * Address all documentation TODOs
