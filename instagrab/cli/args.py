@@ -102,5 +102,9 @@ class CliArgParse:
         # -------------------------------------------------------------------------
         self._args = self.parser.parse_args()
 
+        if self._args.parser is None:
+            self._args.rec_file = record_file_name
+            self._args.location = dl_dir
+
     def get_args(self):
         return self._args
