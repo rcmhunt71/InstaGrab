@@ -79,4 +79,4 @@ def start_ui(dl_engine, cfg: InstaCfg = None):
     dl_info_thread.started.connect(dl_info_update.run)
     dl_info_thread.start()
 
-    sys.exit(insta_grab_app.exec())
+    insta_grab_app.exec()
