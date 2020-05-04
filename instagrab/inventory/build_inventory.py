@@ -10,6 +10,34 @@ from instagrab.images.record_file import MediaRecords
 
 
 # TODO: Document class level
+class DatabaseIndices:
+    UNKNOWN = "Unknown"
+    NATURE = "Nature"
+    JETS = "Jets"
+    PEOPLE = "People"
+    SPECIAL = {
+        JETS.lower(): JETS,
+        NATURE.lower(): NATURE
+    }
+    DEFAULT = PEOPLE
+
+    @classmethod
+    def determine_index(cls, category: str) -> str:
+        """
+        Determine the database index to store record.
+
+        Args:
+            category: The category of image (determined from metadata)
+
+        Return:
+            Database index (str)
+        """
+        return cls.SPECIAL[category.lower()] if category.lower() in cls.SPECIAL.keys() else cls.PEOPLE
+
+
+class MediaMetadata:
+    FAVORITE = 'favorite'
+    CATEGORY = 'category'
 
 
 class MediaTypes(Enum):
@@ -22,20 +50,24 @@ class MediaTypes(Enum):
 class MediaRecord:
     """ Class for storing information about a single media file"""
 
-    def __init__(self, name: str = None, url: str = None, paths: typing.List[str] = None, favorite: bool = False,
-                 media_type: MediaTypes = MediaTypes.UNKNOWN):
+    def __init__(self, name: str = None, url: str = None, paths: typing.List[str] = None,
+                 metadata: typing.Dict[str, typing.Any] = None, db_index: str = DatabaseIndices.UNKNOWN,
+                 media_type: MediaTypes = MediaTypes.UNKNOWN) -> typing.NoReturn:
         self.name = name
         self.url = url
         self.paths = paths or []
-        self.favorite = favorite
+        self.metadata = metadata or {}
         self.media_type = media_type
+        self.db_index = db_index
 
     def __str__(self):
         paths = '\n\t       '.join([f'"{n}"' for n in self.paths])
-        return (f"FILENAME: {self.name} {'(FAVORITE)' if self.favorite else ''}\n"
+        return (f"FILENAME: {self.name} {'(FAVORITE)' if MediaMetadata.FAVORITE in self.metadata else ''}\n"
                 f"\tTYPE: {self.media_type.value}\n"
+                f"\tMETADATA: {self.metadata}\n"
                 f"\tPATHS: {paths}\n"
-                f"\tURL: {self.url}\n")
+                f"\tURL: {self.url}\n"
+                f"\tINDEX: {self.db_index}")
 
 
 class BuildInventory:
@@ -95,22 +127,25 @@ class BuildInventory:
 
     @staticmethod
     def _create_inv_record(name: str = None, url: str = None, paths_list: typing.List[str] = None,
-                           favorite: bool = False, media_type: MediaTypes = MediaTypes.UNKNOWN) -> MediaRecord:
+                           metadata: typing.Dict[str, typing.Any] = None, db_index: str = DatabaseIndices.UNKNOWN,
+                           media_type: MediaTypes = MediaTypes.UNKNOWN) -> MediaRecord:
         """
         Create blank record (or populate with known info)
 
         :param name: Name of media file
         :param url: URL for media type
+        :param db_index: Index to store image
         :param paths_list: file paths on disk
-        :param favorite: Is this a favorite?
+        :param metadata: list of metadata about image
         :param media_type: MediaType enumeration
 
-        :return: Dictionary of info about medio file
+        :return: Dictionary of info about media file
 
         """
-        return MediaRecord(name=name, url=url, paths=paths_list, favorite=favorite, media_type=media_type)
+        return MediaRecord(name=name, url=url, paths=paths_list, metadata=metadata,
+                           media_type=media_type, db_index=db_index)
 
-    def _update_record_from_filespec(self, file_spec: str, record: MediaRecord) -> MediaRecord:
+    def _update_record_from_file_spec(self, file_spec: str, record: MediaRecord) -> MediaRecord:
         """
         Update the record based on info from the file_spec (favorites, add to path list, etc.)
 
@@ -126,12 +161,21 @@ class BuildInventory:
 
         # If filespec has specific directories in the name, mark it as a favorite.
         if [fav for fav in favorites if fav in file_spec.lower()]:
-            record.favorite = True
+            record.metadata[MediaMetadata.FAVORITE] = True
         else:
+            category = self._get_category(file_spec=file_spec)
+            record.metadata[MediaMetadata.FAVORITE] = False
+            record.metadata[MediaMetadata.CATEGORY] = category
+            record.db_index = DatabaseIndices.determine_index(category=category)
             record.paths.append(file_spec)
 
         record.media_type = self._ext_type(file_spec.split(os.path.sep)[-1])
         return record
+
+    def _get_category(self, file_spec):
+        file_path = str(os.path.split(file_spec)[0].split(self.dl_dir)[-1])
+        category = str(file_path.split(os.path.sep)[-1])
+        return category
 
     def archive_inventory(self, inv=None):
         inv = inv or self.inv
@@ -157,7 +201,7 @@ class BuildInventory:
         for file_spec in self.file_specs:
             filename = file_spec.split(os.path.sep)[-1]
             if filename in inv.keys():
-                inv[filename] = self._update_record_from_filespec(file_spec=file_spec, record=inv[filename])
+                inv[filename] = self._update_record_from_file_spec(file_spec=file_spec, record=inv[filename])
 
         inv, errors = self._validate_inventory(inventory=inv)
         self.archive_inventory(inv)
@@ -174,7 +218,6 @@ class BuildInventory:
         :return: Tuple of updated inventory and dictionary of errors.
 
         """
-
         # Initialize error tracking structure
         errors = {
             self.MISSING_PATH: [],
@@ -202,7 +245,7 @@ class BuildInventory:
                     paths_list=[file_spec],
                     media_type=self._ext_type(filename),
                 )
-                inventory[filename] = self._update_record_from_filespec(file_spec=file_spec, record=inventory[filename])
+                inventory[filename] = self._update_record_from_file_spec(file_spec=file_spec, record=inventory[filename])
 
         # Check inventory to for entries that are missing data.
         # Record the file names of records with missing data
