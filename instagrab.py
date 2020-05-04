@@ -2,7 +2,7 @@ import signal
 import time
 import typing
 
-from instagrab.app_utils.app_routines import download_media, inventory, query, ui
+from instagrab.app_utils.app_routines import inventory, query, ui
 from instagrab.cli.args import CliArgParse
 from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants
