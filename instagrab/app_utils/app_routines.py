@@ -121,7 +121,7 @@ def inventory(records_file: str, download_dir: str = ".", file_ext_list: typing.
     :param cfg: InstaCfg object (for providing additional configuration options)
     :param debug: Enable debugging
 
-    :return: None
+    :return: BuildInventory Object
 
     """
     file_ext_list = file_ext_list or []
