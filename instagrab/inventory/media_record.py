@@ -23,7 +23,7 @@ class MediaRecord:
     def __init__(self, media_file_name: str = None, url: str = None, paths: typing.List[str] = None,
                  metadata: typing.Dict[str, typing.Any] = None, db_index: str = DatabaseIndices.UNKNOWN,
                  media_type: MediaTypes = MediaTypes.UNKNOWN) -> typing.NoReturn:
-        self.name = ''
+        self.name = None
         self.media_file_name = media_file_name
         self.url = url
         self.paths = paths or []
@@ -36,6 +36,7 @@ class MediaRecord:
     def __str__(self):
         paths = '\n\t       '.join([f'"{n}"' for n in self.paths])
         return (f"FILENAME: {self.media_file_name} {'(FAVORITE)' if MediaMetadata.FAVORITE in self.metadata else ''}\n"
+                f"\tCOMMON NAME: {self.name}\n"
                 f"\tTYPE: {self.media_type.value}\n"
                 f"\tMETADATA: {self.metadata}\n"
                 f"\tPATHS: {paths}\n"
