@@ -83,7 +83,7 @@ class BuildInventory:
         :return: Dictionary of info about media file
 
         """
-        return MediaRecord(name=name, url=url, paths=paths_list, metadata=metadata,
+        return MediaRecord(media_file_name=name, url=url, paths=paths_list, metadata=metadata,
                            media_type=media_type, db_index=db_index)
 
     def _update_record_from_file_spec(self, file_spec: str, record: MediaRecord) -> MediaRecord:
