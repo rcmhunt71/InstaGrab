@@ -172,7 +172,7 @@ def query(records_file: str, filename: str = None, keyword: str = None,
 
     # Get inventory
     inv = inventory(records_file=records_file, download_dir=download_dir, file_ext_list=file_ext_list, cfg=cfg)
-    inv.archive_inventory()
+    inv.write_archive_inventory()
 
     # Filter and display matching inventory based on provided criteria
     inv.show_records(**args)
@@ -180,6 +180,6 @@ def query(records_file: str, filename: str = None, keyword: str = None,
 
 def ui(records_file: str, dl_engine: ThreadedDL, download_dir: str = ".", cfg: InstaCfg = None, debug=False) -> typing.NoReturn:
     inv = inventory(records_file=records_file, download_dir=download_dir, cfg=cfg, debug=debug)
-    inv.archive_inventory()
+    inv.write_archive_inventory()
     start_ui(cfg=cfg, dl_engine=dl_engine)
 

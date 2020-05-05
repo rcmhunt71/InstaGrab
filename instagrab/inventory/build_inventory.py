@@ -11,12 +11,14 @@ from instagrab.images.record_file import MediaRecords
 
 # TODO: Document class level
 class DatabaseIndices:
-    UNKNOWN = "Unknown"
-    NATURE = "Nature"
     JETS = "Jets"
+    MUSIC = "Music"
+    NATURE = "Nature"
     PEOPLE = "People"
+    UNKNOWN = "Unknown"
     SPECIAL = {
         JETS.lower(): JETS,
+        MUSIC.lower(): MUSIC,
         NATURE.lower(): NATURE
     }
     DEFAULT = PEOPLE
@@ -36,8 +38,9 @@ class DatabaseIndices:
 
 
 class MediaMetadata:
-    FAVORITE = 'favorite'
+    GROUP = 'group'
     CATEGORY = 'category'
+    FAVORITE = 'favorite'
 
 
 class MediaTypes(Enum):
@@ -59,6 +62,8 @@ class MediaRecord:
         self.metadata = metadata or {}
         self.media_type = media_type
         self.db_index = db_index
+        if MediaMetadata.FAVORITE not in self.metadata:
+            self.metadata[MediaMetadata.FAVORITE] = False
 
     def __str__(self):
         paths = '\n\t       '.join([f'"{n}"' for n in self.paths])
@@ -160,24 +165,27 @@ class BuildInventory:
             self.cfg.get_element(path=[ConfigConstants.CATEGORIES, ConfigConstants.FAVORITES], default=[]))
 
         # If filespec has specific directories in the name, mark it as a favorite.
-        if [fav for fav in favorites if fav in file_spec.lower()]:
+        if [fav for fav in favorites if fav.lower() in file_spec.lower()]:
             record.metadata[MediaMetadata.FAVORITE] = True
         else:
-            category = self._get_category(file_spec=file_spec)
-            record.metadata[MediaMetadata.FAVORITE] = False
-            record.metadata[MediaMetadata.CATEGORY] = category
+            group, category = self._get_group_and_category(file_spec=file_spec)
             record.db_index = DatabaseIndices.determine_index(category=category)
+            if category.lower() != record.db_index.lower():
+                record.metadata[MediaMetadata.CATEGORY] = category
+            record.metadata[MediaMetadata.GROUP] = group
             record.paths.append(file_spec)
 
         record.media_type = self._ext_type(file_spec.split(os.path.sep)[-1])
         return record
 
-    def _get_category(self, file_spec):
+    def _get_group_and_category(self, file_spec):
         file_path = str(os.path.split(file_spec)[0].split(self.dl_dir)[-1])
         category = str(file_path.split(os.path.sep)[-1])
-        return category
+        group = str(file_path.split(os.path.sep)[-2])
+        group = group if group != '' else None
+        return group, category
 
-    def archive_inventory(self, inv=None):
+    def write_archive_inventory(self, inv=None):
         inv = inv or self.inv
         with open(self.INVENTORY_ARCHIVE_FILE, "wb") as ARCHIVE:
             ARCHIVE.write(pickle.dumps(obj=inv))
@@ -204,7 +212,7 @@ class BuildInventory:
                 inv[filename] = self._update_record_from_file_spec(file_spec=file_spec, record=inv[filename])
 
         inv, errors = self._validate_inventory(inventory=inv)
-        self.archive_inventory(inv)
+        self.write_archive_inventory(inv)
         return inv, errors
 
     def _validate_inventory(self, inventory: typing.Dict[str, MediaRecord]) -> typing.Tuple[dict, dict]:
@@ -245,7 +253,8 @@ class BuildInventory:
                     paths_list=[file_spec],
                     media_type=self._ext_type(filename),
                 )
-                inventory[filename] = self._update_record_from_file_spec(file_spec=file_spec, record=inventory[filename])
+                inventory[filename] = self._update_record_from_file_spec(
+                    file_spec=file_spec, record=inventory[filename])
 
         # Check inventory to for entries that are missing data.
         # Record the file names of records with missing data
@@ -300,7 +309,7 @@ class BuildInventory:
                     continue
 
                 # If favorites filter is specified, do not process anything that does not match
-                if favorites is not None and self.inv[f_name].favorite != favorites:
+                if favorites is not None and self.inv[f_name].metadata[MediaMetadata.FAVORITE] != favorites:
                     continue
 
                 # If a keyword is specified and is not found in the path, do not process.
