@@ -12,3 +12,6 @@ UI:
 GENERAL:
 * Address all documentation TODOs
 * Strange output errors from pyperclip - saves URL, but filename is munged. Can be corrected manually by reDL'ing and updating file.
+
+STORAGE:
+# Make DB indices dynamic (config file or read from DB host)

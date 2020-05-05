@@ -7,72 +7,8 @@ import typing
 from instagrab.config.cfg import InstaCfg
 from instagrab.config.config_const import ConfigConstants
 from instagrab.images.record_file import MediaRecords
-
-
-# TODO: Document class level
-class DatabaseIndices:
-    JETS = "Jets"
-    MUSIC = "Music"
-    NATURE = "Nature"
-    PEOPLE = "People"
-    UNKNOWN = "Unknown"
-    SPECIAL = {
-        JETS.lower(): JETS,
-        MUSIC.lower(): MUSIC,
-        NATURE.lower(): NATURE
-    }
-    DEFAULT = PEOPLE
-
-    @classmethod
-    def determine_index(cls, category: str) -> str:
-        """
-        Determine the database index to store record.
-
-        Args:
-            category: The category of image (determined from metadata)
-
-        Return:
-            Database index (str)
-        """
-        return cls.SPECIAL[category.lower()] if category.lower() in cls.SPECIAL.keys() else cls.PEOPLE
-
-
-class MediaMetadata:
-    GROUP = 'group'
-    CATEGORY = 'category'
-    FAVORITE = 'favorite'
-
-
-class MediaTypes(Enum):
-    VIDEO: str = "video"
-    AUDIO: str = "audio"
-    IMAGE: str = "image"
-    UNKNOWN: str = "unknown"
-
-
-class MediaRecord:
-    """ Class for storing information about a single media file"""
-
-    def __init__(self, name: str = None, url: str = None, paths: typing.List[str] = None,
-                 metadata: typing.Dict[str, typing.Any] = None, db_index: str = DatabaseIndices.UNKNOWN,
-                 media_type: MediaTypes = MediaTypes.UNKNOWN) -> typing.NoReturn:
-        self.name = name
-        self.url = url
-        self.paths = paths or []
-        self.metadata = metadata or {}
-        self.media_type = media_type
-        self.db_index = db_index
-        if MediaMetadata.FAVORITE not in self.metadata:
-            self.metadata[MediaMetadata.FAVORITE] = False
-
-    def __str__(self):
-        paths = '\n\t       '.join([f'"{n}"' for n in self.paths])
-        return (f"FILENAME: {self.name} {'(FAVORITE)' if MediaMetadata.FAVORITE in self.metadata else ''}\n"
-                f"\tTYPE: {self.media_type.value}\n"
-                f"\tMETADATA: {self.metadata}\n"
-                f"\tPATHS: {paths}\n"
-                f"\tURL: {self.url}\n"
-                f"\tINDEX: {self.db_index}")
+from instagrab.inventory.db_indices import DatabaseIndices
+from instagrab.inventory.media_record import MediaMetadata, MediaTypes, MediaRecord
 
 
 class BuildInventory:
