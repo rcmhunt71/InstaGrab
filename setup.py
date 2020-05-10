@@ -9,5 +9,5 @@ setup(
       author='dev/null',
       author_email='',
       packages=[],
-      requires=['requests', 'elasticsearch7', 'pyperclip', 'pyqt'],
+      requires=['requests', 'elasticsearch7_dsl', 'pyperclip', 'pyqt'],
 )
