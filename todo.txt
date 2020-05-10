@@ -8,6 +8,7 @@ UI:
 * Check and debug errors when scaling images:
   >> QPixmap::scaled: Pixmap is a null pixmap
   >> qt.gui.icc: fromIccProfile: failed minimal tag size sanity
+* Have windows scroll with additional output.
 
 GENERAL:
 * Address all documentation TODOs

@@ -1,0 +1,19 @@
+{
+  "mappings":
+  {
+    "image_data": {
+      "properties": {
+         "link": { "type":"string" },
+         "resolution": {
+           "properties": {
+             "height": { "type": "integer" },
+              "width": {"type":  "integer"}
+           }
+         },
+         "metadata": { "type": "string"},
+         "category": {"type":  "string"}
+         }
+      },
+    "image": { "type": "binary" }
+  }
+}

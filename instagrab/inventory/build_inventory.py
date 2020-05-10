@@ -105,7 +105,7 @@ class BuildInventory:
             record.metadata[MediaMetadata.FAVORITE] = True
         else:
             group, category = self._get_group_and_category(file_spec=file_spec)
-            record.db_index = DatabaseIndices.determine_index(category=category)
+            record.db_index = DatabaseIndices.determine_index(category=category).lower()
             if category.lower() != record.db_index.lower():
                 record.metadata[MediaMetadata.CATEGORY] = category
             record.metadata[MediaMetadata.GROUP] = group
