@@ -1,3 +1,5 @@
+import datetime
+
 from instagrab.inventory.media_record import MediaRecord, MediaTypes
 
 import elasticsearch7_dsl as es_dsl
@@ -12,6 +14,8 @@ class MediaRecordDoc(es_dsl.Document):
     group = es_dsl.Text()
     category = es_dsl.Text()
     favorite = es_dsl.Boolean()
+    added = es_dsl.Date()
+    modified = es_dsl.Date()
 
 
 class DatabaseDocument:
@@ -35,6 +39,8 @@ class DatabaseDocument:
             url=record.url,
             image_name=record.media_file_name,
             image_data=open(record.paths[0], "rb").read(),
+            added=datetime.datetime.now(),
+            modifed=datetime.datetime.now(),
             **record.metadata,
         )
         self.doc.save(index=record.db_index)
@@ -71,5 +77,5 @@ class DatabaseDocument:
         return MediaRecord(
             name=record.name, url=record.url, paths=[], db_index=self._index, metadata=metadata,
             media_type=MediaTypes.get_media_type_enum(record.media_type), image_data=record.image_data,
-            media_file_name=record.image_name,
+            media_file_name=record.image_name, created=record.added, modified=record.modified
         )

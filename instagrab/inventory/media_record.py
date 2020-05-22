@@ -1,3 +1,4 @@
+import datetime
 from enum import Enum
 import typing
 
@@ -30,7 +31,7 @@ class MediaRecord:
 
     def __init__(self, media_file_name: str = None, url: str = None, paths: typing.List[str] = None,
                  metadata: typing.Dict[str, typing.Any] = None, db_index: str = DatabaseIndices.UNKNOWN,
-                 media_type: MediaTypes = MediaTypes.UNKNOWN, name: str = None,
+                 media_type: MediaTypes = MediaTypes.UNKNOWN, name: str = None, created=None, modified=None,
                  image_data=None) -> typing.NoReturn:
         self.name = name
         self.media_file_name = media_file_name
@@ -40,6 +41,8 @@ class MediaRecord:
         self.media_type = media_type
         self.db_index = db_index
         self.image_data = image_data
+        self.created = created or datetime.datetime.now()
+        self.modified = modified or datetime.datetime.now()
         if MediaMetadata.FAVORITE not in self.metadata:
             self.metadata[MediaMetadata.FAVORITE] = False
 
@@ -48,6 +51,8 @@ class MediaRecord:
         return (f"FILENAME: {self.media_file_name} {'(FAVORITE)' if self.metadata[MediaMetadata.FAVORITE] else ''}\n"
                 f"\tCOMMON NAME: {self.name}\n"
                 f"\tTYPE: {self.media_type.value}\n"
+                f"\tADDED: {self.created}\n"
+                f"\tLAST MODIFIED: {self.modified}\n"
                 f"\tMETADATA: {self.metadata}\n"
                 f"\tPATHS: {paths}\n"
                 f"\tURL: {self.url}\n"

@@ -116,7 +116,10 @@ class BuildInventory:
     def _get_group_and_category(self, file_spec):
         file_path = str(os.path.split(file_spec)[0].split(self.dl_dir)[-1])
         category = str(file_path.split(os.path.sep)[-1])
-        group = str(file_path.split(os.path.sep)[-2])
+        try:
+            group = str(file_path.split(os.path.sep)[-2])
+        except IndexError:
+            group = ''
         group = group if group != '' else None
         return group, category
 
