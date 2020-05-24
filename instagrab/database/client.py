@@ -1,9 +1,11 @@
+import ast
 import random
-
+import sys
 
 from instagrab.database.db_record import DatabaseDocument
 from instagrab.inventory.media_record import MediaMetadata
 
+from elasticsearch7.exceptions import NotFoundError
 from elasticsearch7_dsl.connections import connections
 
 MAX_RESULTS = 1000
@@ -43,36 +45,73 @@ if __name__ == "__main__":
 
     query = db_interface.get_inventory()
 
-    BY_NAME = True
-    BY_ID = False
+    filename = ''
+    criteria = {}
+    if len(sys.argv) > 1:
+        BY_NAME = BY_ID = BY_CRITERIA = False
 
-    if BY_NAME:
-        filename = '72571404_2153205441650534_3209203742217764885_n.jpg'
-        ret_doc, es_record, results = db_interface.get_record_by_name(image_name=filename)
-        if ret_doc is not None:
-            # print(ret_doc.image_data)
-            ext = filename.split('.')[-1]
-            with open(f"chris.{ext}", "wb") as OUT:
-                OUT.write(ret_doc.image_data)
-            print(f"WROTE: chris.{ret_doc.media_type.value}")
-            print(f"INDEX: {record.db_index}")
-            # print(f"FAVORITE: {ret_doc.favorite}")
-            print(f"DL: {ret_doc.metadata[MediaMetadata.GROUP]}\\"
-                  f"{ret_doc.metadata[MediaMetadata.CATEGORY]}\\{ret_doc.media_file_name}")
-            print(ret_doc)
+        if sys.argv[1].endswith('jpg'):
+            BY_NAME = True
+            filename = sys.argv[1]
 
-    if BY_ID:
-        total = query.hits.total.value
-        index = random.randint(0, total - 1)
-        print(f"RANDOMIZED INDEX: {index} of {total}")
+        if sys.argv[1].endswith('find'):
+            BY_CRITERIA = True
+            criteria = sys.argv[-1]
+            print(f'CRITERIA: "{criteria}"')
+            criteria = ast.literal_eval(criteria)
 
-        target_id = query.hits[index].meta.id
-        print(f"TARGET ID: {target_id}")
+        else:
+            BY_ID = True
 
-        ret_doc = db_interface.get_record_by_id(target_id)
-        with open(f"chris.{ret_doc.media_type}", "wb") as OUT:
-            OUT.write(ret_doc.image)
-        print(f"WROTE: chris.{ret_doc.media_type}")
-        print(f"INDEX: {record.db_index}")
-        print(f"FAVORITE: {ret_doc.favorite}")
-        print(f"DL: {ret_doc.group}\\{ret_doc.category}\\{ret_doc.image_name}")
+        db_index = 'people' if len(sys.argv) == 2 else sys.argv[-1]
+
+        print(f"Identifying by:\n\tBY_NAME: {BY_NAME}\n\tBY_ID: {BY_ID}\n\tBY_CRITERIA: {BY_CRITERIA}")
+        print(f"DB INDEX: {db_index}")
+
+        if BY_NAME:
+            try:
+                ret_doc, es_record, results = db_interface.get_record_by_name(
+                    image_name=filename, index=db_index)
+
+            except NotFoundError:
+                print(f"{db_index}:{filename} not found")
+
+            else:
+                if ret_doc is not None:
+                    ext = filename.split('.')[-1]
+                    with open(f"chris.{ext}", "wb") as OUT:
+                        OUT.write(ret_doc.image_data)
+                    print(f"WROTE: chris.{ret_doc.media_type.value}")
+                    print(f"INDEX: {record.db_index}")
+                    print(f"FAVORITE: {ret_doc.favorite}")
+                    print(f"DL: {ret_doc.metadata[MediaMetadata.GROUP]}\\"
+                          f"{ret_doc.metadata[MediaMetadata.CATEGORY]}\\{ret_doc.media_file_name}")
+                    print(ret_doc)
+
+        elif BY_ID:
+            total = query.hits.total.value
+            total = total if total > 0 else 1
+            index = random.randint(0, total - 1)
+            print(f"RANDOMIZED INDEX: {index} of {total}")
+
+            target_id = query.hits[index].meta.id
+            print(f"TARGET ID: {target_id}")
+
+            try:
+                ret_doc = db_interface.get_record_by_id(target_id, index=db_index)
+            except NotFoundError:
+                print(f"{db_index}:{target_id} not found")
+            else:
+                with open(f"chris.{ret_doc.media_type}", "wb") as OUT:
+                    OUT.write(ret_doc.image)
+                print(f"WROTE: chris.{ret_doc.media_type}")
+                print(f"INDEX: {record.db_index}")
+                print(f"FAVORITE: {ret_doc.favorite}")
+                print(f"DL: {ret_doc.db_index}\\{ret_doc.category}\\{ret_doc.image_name}")
+
+        elif BY_CRITERIA:
+            results = db_interface.search_inventory(keyword_dict=criteria)
+            print(f"NUMBER OF HITS: {len(results)}")
+            for hit in results:
+                print(hit)
+

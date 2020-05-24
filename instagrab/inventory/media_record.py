@@ -45,9 +45,11 @@ class MediaRecord:
         self.modified = modified or datetime.datetime.now()
         if MediaMetadata.FAVORITE not in self.metadata:
             self.metadata[MediaMetadata.FAVORITE] = False
+        if MediaMetadata.CATEGORY not in self.metadata:
+            self.metadata[MediaMetadata.CATEGORY] = None
 
     def __str__(self):
-        paths = '\n\t       '.join([f'"{n}"' for n in self.paths])
+        paths = '\n\t       '.join([f'"{n}"' for n in set(self.paths)])
         return (f"FILENAME: {self.media_file_name} {'(FAVORITE)' if self.metadata[MediaMetadata.FAVORITE] else ''}\n"
                 f"\tCOMMON NAME: {self.name}\n"
                 f"\tTYPE: {self.media_type.value}\n"
@@ -57,3 +59,7 @@ class MediaRecord:
                 f"\tPATHS: {paths}\n"
                 f"\tURL: {self.url}\n"
                 f"\tDB INDEX: {self.db_index}")
+
+    @property
+    def favorite(self):
+        return self.metadata[MediaMetadata.FAVORITE] if MediaMetadata.FAVORITE in self.metadata else False

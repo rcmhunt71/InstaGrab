@@ -9,10 +9,13 @@ UI:
   >> QPixmap::scaled: Pixmap is a null pixmap
   >> qt.gui.icc: fromIccProfile: failed minimal tag size sanity
 * Have windows scroll with additional output.
+* On exit, if the DL thread is active, run the inventory.
+
 
 GENERAL:
 * Address all documentation TODOs
 * Strange output errors from pyperclip - saves URL, but filename is munged. Can be corrected manually by reDL'ing and updating file.
+* Paths being duplicated (see view_inventory, remove list(set()) from record.__str__.
 
 STORAGE:
 # Make DB indices dynamic (config file or read from DB host)

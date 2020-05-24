@@ -108,7 +108,8 @@ class BuildInventory:
             if category.lower() != record.db_index.lower():
                 record.metadata[MediaMetadata.CATEGORY] = category
             record.metadata[MediaMetadata.GROUP] = group
-            record.paths.append(file_spec)
+            if file_spec not in record.paths:
+                record.paths.append(file_spec)
 
         record.media_type = self._ext_type(file_spec.split(os.path.sep)[-1])
         return record
@@ -188,7 +189,7 @@ class BuildInventory:
                 errors[self.MISSING_RECORD].append(filename)
                 inventory[filename] = self._create_inv_record(
                     name=filename,
-                    paths_list=[file_spec],
+                    paths_list=list(([file_spec])),
                     media_type=self._ext_type(filename),
                 )
                 inventory[filename] = self._update_record_from_file_spec(
